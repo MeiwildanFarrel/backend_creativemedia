@@ -66,7 +66,7 @@ const hapusKategori = async (req, res, next) => {
     }
 
     await model.hapus(req.params.id);
-    res.json({ message: 'Kategori berhasil dihapus.' });
+    res.json({ message: 'Kategori berhasil dihapus.', data: null });
   } catch (err) { next(err); }
 };
 

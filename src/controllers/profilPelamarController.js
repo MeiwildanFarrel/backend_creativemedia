@@ -94,7 +94,7 @@ const hapusProfil = async (req, res, next) => {
     }
 
     await model.hapus(req.params.id);
-    res.json({ message: 'Profil pelamar berhasil dihapus.' });
+    res.json({ message: 'Profil pelamar berhasil dihapus.', data: null });
   } catch (err) { next(err); }
 };
 

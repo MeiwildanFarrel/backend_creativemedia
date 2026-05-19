@@ -8,6 +8,10 @@ const usersRouter = require('./routes/users');
 const profilPelamarRoutes    = require('./routes/profilPelamar');
 const profilPerusahaanRoutes = require('./routes/profilPerusahaan');
 const kategoriPekerjaanRoutes = require('./routes/kategoriPekerjaan');
+const lowonganKerjaRoutes     = require('./routes/lowonganKerja');
+const lamaranKerjaRoutes      = require('./routes/lamaranKerja');
+const jadwalInterviewRoutes   = require('./routes/jadwalInterview');
+const dashboardRoutes         = require('./routes/dashboard');
 const path = require('path');
 
 const app = express();
@@ -43,6 +47,10 @@ app.use('/', usersRouter);
 app.use('/profil-pelamar', profilPelamarRoutes);
 app.use('/profil-perusahaan', profilPerusahaanRoutes);
 app.use('/kategori-pekerjaan', kategoriPekerjaanRoutes);
+app.use('/lowongan-kerja',    lowonganKerjaRoutes);
+app.use('/lamaran-kerja',     lamaranKerjaRoutes);
+app.use('/jadwal-interview',  jadwalInterviewRoutes);
+app.use('/dashboard',         dashboardRoutes);
 
 
 app.use((req, res) => {

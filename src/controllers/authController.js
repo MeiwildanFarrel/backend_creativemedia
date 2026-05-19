@@ -1,27 +1,34 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Joi = require('joi');
 const userModel = require('../models/userModel');
+
+const skemaRegister = Joi.object({
+  name    : Joi.string().required().messages({ 'any.required': 'name wajib diisi.', 'string.empty': 'name tidak boleh kosong.' }),
+  email   : Joi.string().email().required().messages({ 'any.required': 'email wajib diisi.', 'string.email': 'email harus berupa alamat email yang valid.' }),
+  password: Joi.string().min(8).required().messages({ 'any.required': 'password wajib diisi.', 'string.min': 'password minimal 8 karakter.' }),
+  role    : Joi.string().valid('pelamar', 'perusahaan', 'recruiter').optional().default('pelamar').messages({ 'any.only': 'role hanya boleh: pelamar, perusahaan, recruiter.' }),
+});
+
+const skemaLogin = Joi.object({
+  email   : Joi.string().email().required().messages({ 'any.required': 'email wajib diisi.', 'string.email': 'email harus berupa alamat email yang valid.' }),
+  password: Joi.string().required().messages({ 'any.required': 'password wajib diisi.', 'string.empty': 'password tidak boleh kosong.' }),
+});
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { error, value } = skemaRegister.validate(req.body, { abortEarly: true });
+    if (error) return res.status(400).json({ message: error.details[0].message });
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Name, email, dan password wajib diisi.' });
-    }
-
-    if (password.length < 8) {
-      return res.status(400).json({ message: 'Password minimal 8 karakter.' });
-    }
+    const { name, email, password, role } = value;
 
     const existingUser = await userModel.getUserByEmail(email);
     if (existingUser) {
       return res.status(409).json({ message: 'Email sudah digunakan.' });
     }
 
-    // Menggunakan bcrypt untuk hash password
     const passwordHash = await bcrypt.hash(password, 10);
-       const insertId = await userModel.createUser(name, email, passwordHash, role);
+    const insertId = await userModel.createUser(name, email, passwordHash, role);
     const newUser = await userModel.getUserById(insertId);
 
     res.status(201).json({
@@ -35,11 +42,10 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { error, value } = skemaLogin.validate(req.body, { abortEarly: true });
+    if (error) return res.status(400).json({ message: error.details[0].message });
 
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email dan password wajib diisi.' });
-    }
+    const { email, password } = value;
 
     const user = await userModel.getUserByEmail(email);
     if (!user) {
