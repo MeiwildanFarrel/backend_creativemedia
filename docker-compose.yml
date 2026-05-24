@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Container untuk database MySQL
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: apb_api_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql   # data tersimpan permanen
+
+  # Container untuk aplikasi Node.js kamu
+  app:
+    build: .                         # build dari Dockerfile di folder ini
+    restart: always
+    ports:
+      - "3000:3000"                  # akses dari luar lewat port 3000
+    environment:
+      PORT: 3000
+      DB_HOST: db                    # PENTING: nama service MySQL di atas, bukan "localhost"
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: password123
+      DB_NAME: apb_api_db
+      JWT_SECRET: secret_yang_aman_ganti_ini
+      JWT_EXPIRES_IN_SECONDS: 3600
+    depends_on:
+      - db                           # tunggu db siap dulu baru app jalan
+
+volumes:
+  mysql_data:
